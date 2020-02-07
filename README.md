@@ -1,5 +1,7 @@
 # DBSCAN
 
+![CI][ci badge]
+
 **D**ensity-**b**ased **s**patial **c**lustering of **a**pplications with **n**oise
 ([DBSCAN](https://en.wikipedia.org/wiki/DBSCAN)).
 
@@ -77,4 +79,4 @@ MIT
 
 Mattt ([@mattt](https://twitter.com/mattt))
 
-[SE-0253]: https://github.com/apple/swift-evolution/blob/master/proposals/0253-callable.md "Callable values of user-defined nominal types"
+[ci badge]: https://github.com/NSHipster/DBSCAN/workflows/CI/badge.svg
