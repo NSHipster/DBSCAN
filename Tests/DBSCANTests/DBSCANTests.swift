@@ -1,28 +1,31 @@
 import XCTest
 @testable import DBSCAN
 
-import simd
-
 final class DBSCANTests: XCTestCase {
     func testExample() {
-        let input: [SIMD3<Double>] = [[ 0, 10, 20 ],
-                                      [ 0, 11, 21 ],
-                                      [ 0, 12, 20 ],
-                                      [ 20, 33, 59 ],
-                                      [ 21, 32, 56 ],
-                                      [ 59, 77, 101 ],
-                                      [ 58, 79, 100 ],
-                                      [ 58, 76, 102 ],
-                                      [ 300, 70, 20 ],
-                                      [ 500, 300, 202],
-                                      [ 500, 302, 204 ]]
+        let input: [[Double]] = [[ 0, 10, 20 ],
+                                 [ 0, 11, 21 ],
+                                 [ 0, 12, 20 ],
+                                 [ 20, 33, 59 ],
+                                 [ 21, 32, 56 ],
+                                 [ 59, 77, 101 ],
+                                 [ 58, 79, 100 ],
+                                 [ 58, 76, 102 ],
+                                 [ 300, 70, 20 ],
+                                 [ 500, 300, 202],
+                                 [ 500, 302, 204 ]]
+
+        func euclideanDistance(lhs: [Double], rhs: [Double]) -> Double {
+            precondition(lhs.count == rhs.count)
+            return zip(lhs, rhs).map(-).map { $0 * $0 }.reduce(0, +).squareRoot()
+        }
 
         let dbscan = DBSCAN(input)
 
         #if swift(>=5.2)
-        let (clusters, outliers) = dbscan(epsilon: 10, minimumNumberOfPoints: 1, distanceFunction: simd.distance)
+        let (clusters, outliers) = dbscan(epsilon: 10, minimumNumberOfPoints: 1, distanceFunction: euclideanDistance)
         #else
-        let (clusters, outliers) = dbscan.callAsFunction(epsilon: 10, minimumNumberOfPoints: 1, distanceFunction: simd.distance)
+        let (clusters, outliers) = dbscan.callAsFunction(epsilon: 10, minimumNumberOfPoints: 1, distanceFunction: euclideanDistance)
         #endif
 
         XCTAssertEqual(clusters.count, 4)
