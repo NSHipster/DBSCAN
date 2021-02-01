@@ -61,7 +61,7 @@ public struct DBSCAN<Value: Equatable> {
         for point in points {
             guard point.label == nil else { continue }
 
-            var neighbors = try points.filter { try distanceFunction(point.value, $0.value) < epsilon && $0.label == nil}
+            var neighbors = try points.filter { try $0.label == nil && distanceFunction(point.value, $0.value) < epsilon }
             if neighbors.count >= minimumNumberOfPoints {
                 defer { currentLabel += 1 }
                 point.label = currentLabel
@@ -72,7 +72,7 @@ public struct DBSCAN<Value: Equatable> {
 
                     neighbor.label = currentLabel
 
-                    let n1 = try points.filter { try distanceFunction(neighbor.value, $0.value) < epsilon && $0.label == nil}
+                    let n1 = try points.filter { try $0.label == nil && distanceFunction(neighbor.value, $0.value) < epsilon }
                     for point1 in n1 {
                         point1.label = currentLabel
                     }
