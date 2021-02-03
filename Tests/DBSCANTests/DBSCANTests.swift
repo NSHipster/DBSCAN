@@ -39,4 +39,62 @@ final class DBSCANTests: XCTestCase {
         XCTAssertEqual(outliers.count, 1)
         XCTAssertEqual(outliers[0], [300.0, 70.0, 20.0])
     }
+
+    #if swift(>=5.3)
+    func testCapitalsPerformance() throws {
+        struct Capital: Equatable, Decodable, CustomStringConvertible {
+            let country: String
+            let latitude: Double
+            let longitude: Double
+
+            var localizedName: String {
+                Locale.current.localizedString(forRegionCode: country) ?? country
+            }
+
+            var coordinates: [Double] {
+                [latitude, longitude]
+            }
+
+            var description: String {
+                return "\(localizedName) (\(latitude), \(longitude))"
+            }
+        }
+
+        let url = Bundle.module.url(forResource: "capitals", withExtension: "json")!
+        let data = try Data(contentsOf: url)
+
+        let decoder = JSONDecoder()
+        let input = try decoder.decode([Capital].self, from: data)
+
+        func haversineDistance(lhs: Capital, rhs: Capital) -> Double {
+            func deg2rad(_ degrees: Double) -> Double {
+                (degrees / 360) * 2 * .pi
+            }
+
+            func haversin(_ radians: Double) -> Double {
+                return (1 - cos(radians)) / 2
+            }
+
+            let R = 6367444.7
+            let (llat, llng) = (deg2rad(lhs.latitude), deg2rad(lhs.longitude))
+            let (rlat, rlng) = (deg2rad(rhs.latitude), deg2rad(rhs.longitude))
+
+            return R * 2 * asin(sqrt((haversin(rlat - llat) + cos(llat) * cos(rlat) * haversin(rlng - llng))))
+        }
+
+        let dbscan = DBSCAN(input)
+
+        var clusters: [[Capital]] = []
+        var outliers: [Capital] = []
+
+        measure {
+            let ε: Double = 1_000_000
+            (clusters, outliers) = dbscan(epsilon: ε, minimumNumberOfPoints: 1, distanceFunction: haversineDistance)
+        }
+
+        XCTAssertEqual(clusters.count, 12)
+        XCTAssertEqual(outliers.count, 33)
+        XCTAssertTrue(clusters.contains(where: { Set($0.map(\.country)) == ["US", "CA"] }))
+    }
+    #endif
 }
