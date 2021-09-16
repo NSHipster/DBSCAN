@@ -82,14 +82,16 @@ public struct DBSCAN<Value: Equatable> {
 
         var clusters: [[Value]] = []
         var outliers: [Value] = []
-
-        for points in Dictionary(grouping: points, by: { $0.label }).values {
+        
+        let labeledPoints = points.filter { $0.label != nil }
+        for points in Dictionary(grouping: labeledPoints, by: { $0.label }).values {
             let values = points.map { $0.value }
-            if values.count == 1 {
-                outliers.append(contentsOf: values)
-            } else {
-                clusters.append(values)
-            }
+            clusters.append(values)
+        }
+        
+        let noLabelPoints = points.filter { $0.label == nil }
+        for point in noLabelPoints {
+            outliers.append(point.value)
         }
 
         return (clusters, outliers)
