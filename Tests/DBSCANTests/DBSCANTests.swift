@@ -23,7 +23,7 @@ final class DBSCANTests: XCTestCase {
         let dbscan = DBSCAN(input)
 
         #if swift(>=5.2)
-        let (clusters, outliers) = dbscan(epsilon: 10, minimumNumberOfPoints: 1, distanceFunction: euclideanDistance)
+        let (clusters, outliers) = dbscan(epsilon: 10, minimumNumberOfPoints: 2, distanceFunction: euclideanDistance)
         #else
         let (clusters, outliers) = dbscan.callAsFunction(epsilon: 10, minimumNumberOfPoints: 1, distanceFunction: euclideanDistance)
         #endif
@@ -37,7 +37,7 @@ final class DBSCANTests: XCTestCase {
         ])
 
         XCTAssertEqual(outliers.count, 1)
-        XCTAssertEqual(outliers[0], [300.0, 70.0, 20.0])
+        XCTAssertEqual(outliers.first, [300.0, 70.0, 20.0])
     }
 
     #if swift(>=5.3)
@@ -89,7 +89,7 @@ final class DBSCANTests: XCTestCase {
 
         measure {
             let ε: Double = 1_000_000
-            (clusters, outliers) = dbscan(epsilon: ε, minimumNumberOfPoints: 1, distanceFunction: haversineDistance)
+            (clusters, outliers) = dbscan(epsilon: ε, minimumNumberOfPoints: 2, distanceFunction: haversineDistance)
         }
 
         XCTAssertEqual(clusters.count, 12)
